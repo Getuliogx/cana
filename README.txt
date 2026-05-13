@@ -1,17 +1,12 @@
-Busca Universal PS1/PS2 ISO
+Busca PS1/PS2 ISO/BIN - versão Worker
 
-Abra index.html no navegador.
+Abra index.html.
 
-Funções:
-- Seleciona ISO/BIN/IMG ou arquivos soltos.
-- Lê ISO 9660 e lista arquivos internos.
-- Pesquisa dentro de cada arquivo interno.
-- Mostra exatamente em qual arquivo o texto foi achado.
-- Exporta resultados CSV.
-- Exporta lista de arquivos da ISO.
-- Tenta UTF-8, ASCII, Latin-1, UTF-16, UTF-32, Shift-JIS, EUC-JP, GBK, Big5, EUC-KR.
-- Tenta tabela própria, tabela automática, Relative Search, XOR, NOT, nibble swap.
-- Tenta GZIP/ZLIB/Deflate/ZIP.
-
-Limitação:
-Não existe todos os formatos literal. Muitos jogos usam compressão própria, criptografia com chave ou texto em imagem/vídeo.
+Correções:
+- Não trava a aba principal.
+- Usa Web Worker.
+- Lê arquivos internos em partes.
+- Suporta ISO 2048 e BIN PS1 bruto 2352 com offset 24 ou 16.
+- Mostra em qual arquivo interno o texto foi encontrado.
+- Mostra offset no arquivo e offset real no disco.
+- Deixe XOR, Relative Search e Tabela automática desligados primeiro, porque são pesados.
