@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Busca Texto PS1 PS2 ISO BIN - Todos Formatos</title>
+<title>Busca Texto PS1 PS2 ISO BIN - Corrigido</title>
 <style>
 :root{--bg:#0b0f16;--card:#121a26;--txt:#e8eef8;--muted:#9fb0c8;--ok:#59d38c;--bad:#ff6b6b;--warn:#ffd166;--line:#27364d}
 *{box-sizing:border-box}
@@ -29,8 +29,8 @@ pre{white-space:pre-wrap;word-break:break-word;max-height:170px;overflow:auto;ba
 </head>
 <body>
 <header>
-<h1>Busca Texto PS1/PS2 ISO/BIN — Formatos expandidos</h1>
-<p class="hint">Pesquisa dentro dos arquivos internos da ISO/BIN e mostra arquivo, offset e tipo detectado.</p>
+<h1>Busca Texto PS1/PS2 ISO/BIN — corrigido sem infinito</h1>
+<p class="hint">Pesquisa dentro dos arquivos internos e mostra arquivo, offset e tipo detectado.</p>
 </header>
 <main>
 <div class="card">
@@ -43,10 +43,10 @@ pre{white-space:pre-wrap;word-break:break-word;max-height:170px;overflow:auto;ba
 <div><label>Texto para procurar</label><input id="query" placeholder="Ex: LOAD, Load Game, CONTINUE, START, PASSWORD"></div>
 <div><label>Modo pronto</label>
 <select id="preset">
-<option value="safe" selected>Seguro: formatos comuns, rápido</option>
-<option value="wide">Amplo: muitos formatos, médio</option>
-<option value="deep">Profundo: quase tudo, lento</option>
-<option value="brute">Bruto: inclui XOR/tabela pesada, muito lento</option>
+<option value="safe" selected>Seguro: comum e rápido</option>
+<option value="wide">Amplo: mais formatos</option>
+<option value="deep">Profundo: tabela/relative, lento</option>
+<option value="brute">Bruto: inclui XOR, muito lento</option>
 </select></div>
 </div>
 <br>
@@ -63,7 +63,7 @@ pre{white-space:pre-wrap;word-break:break-word;max-height:170px;overflow:auto;ba
 </div>
 
 <div class="card">
-<b>Formatos de bytes</b>
+<b>Formatos de busca</b>
 <div class="grid">
 <label class="chk"><input id="ascii" type="checkbox" checked> ASCII / 8-bit comum</label>
 <label class="chk"><input id="utf8" type="checkbox" checked> UTF-8</label>
@@ -76,40 +76,17 @@ pre{white-space:pre-wrap;word-break:break-word;max-height:170px;overflow:auto;ba
 <label class="chk"><input id="zeroAfter" type="checkbox" checked> Letra + 00</label>
 <label class="chk"><input id="zeroBefore" type="checkbox"> 00 + letra</label>
 <label class="chk"><input id="nullTerminated" type="checkbox" checked> String terminada em 00</label>
-<label class="chk"><input id="pascal8" type="checkbox"> Pascal 8-bit length + texto</label>
-<label class="chk"><input id="pascal16le" type="checkbox"> Pascal 16 LE length + texto</label>
+<label class="chk"><input id="pascal8" type="checkbox"> Pascal 8-bit length</label>
+<label class="chk"><input id="pascal16le" type="checkbox"> Pascal 16 LE length</label>
 <label class="chk"><input id="reverseBytes" type="checkbox"> Texto invertido</label>
-</div>
-</div>
-
-<div class="card">
-<b>Decodificadores por leitura de texto</b>
-<p class="hint">Esses tentam decodificar o arquivo e achar o texto. O offset pode ser aproximado em alguns encodings.</p>
-<div class="grid">
-<label class="chk"><input id="decUtf8" type="checkbox" checked> Decode UTF-8</label>
-<label class="chk"><input id="dec1252" type="checkbox" checked> Decode Windows-1252</label>
-<label class="chk"><input id="decLatin1" type="checkbox" checked> Decode ISO-8859-1</label>
-<label class="chk"><input id="decUtf16le" type="checkbox" checked> Decode UTF-16 LE</label>
-<label class="chk"><input id="decUtf16be" type="checkbox"> Decode UTF-16 BE</label>
-<label class="chk"><input id="decSjis" type="checkbox" checked> Decode Shift-JIS</label>
-<label class="chk"><input id="decEucjp" type="checkbox"> Decode EUC-JP</label>
-<label class="chk"><input id="decGbk" type="checkbox"> Decode GBK</label>
-<label class="chk"><input id="decBig5" type="checkbox"> Decode Big5</label>
-<label class="chk"><input id="decEuckr" type="checkbox"> Decode EUC-KR</label>
-</div>
-</div>
-
-<div class="card">
-<b>Formatos de jogos / busca sem tabela</b>
-<div class="grid">
-<label class="chk"><input id="caseInsensitive" type="checkbox" checked> Variações maiúscula/minúscula</label>
-<label class="chk"><input id="noAccent" type="checkbox" checked> Variação sem acentos</label>
-<label class="chk"><input id="spaceVariants" type="checkbox" checked> Espaço como vazio / _ / - / .</label>
 <label class="chk"><input id="autoTable" type="checkbox"> Tabela sequencial A-Z/a-z/0-9</label>
 <label class="chk"><input id="relative" type="checkbox"> Relative Search</label>
 <label class="chk"><input id="xor" type="checkbox"> XOR 1 byte</label>
 <label class="chk"><input id="notBits" type="checkbox"> NOT bits</label>
 <label class="chk"><input id="nibble" type="checkbox"> Nibble swap</label>
+<label class="chk"><input id="caseInsensitive" type="checkbox" checked> Variações maiúscula/minúscula</label>
+<label class="chk"><input id="noAccent" type="checkbox" checked> Variação sem acentos</label>
+<label class="chk"><input id="spaceVariants" type="checkbox" checked> Espaço como vazio / _ / - / .</label>
 </div>
 </div>
 
@@ -125,10 +102,6 @@ pre{white-space:pre-wrap;word-break:break-word;max-height:170px;overflow:auto;ba
 
 <div class="card"><b>Arquivos verificados</b>
 <div style="overflow:auto;max-height:300px"><table><thead><tr><th>#</th><th>Arquivo</th><th>LBA</th><th>Tamanho</th><th>Status</th></tr></thead><tbody id="filesChecked"></tbody></table></div></div>
-
-<div class="card">
-<p class="warn">Mesmo com muitos formatos, não existe “todos” literal: alguns jogos usam compressão própria, criptografia com chave, texto em imagem, DTE/MTE ou pacotes internos. Essa página cobre muito mais tipos de texto e mostra o tipo encontrado.</p>
-</div>
 </main>
 
 <script>
@@ -141,14 +114,9 @@ function csv(v){return '"'+String(v).replaceAll('"','""')+'"'}
 function setStatus(t,c="hint"){$("status").className=c;$("status").textContent=t}
 function reset(){resultRows=[];checkedRows=[];$("results").innerHTML="";$("filesChecked").innerHTML="";$("exportResults").disabled=true;$("summary").innerHTML="";$("bar").style.width="0%"}
 function addChecked(f){checkedRows.push(f);let tr=document.createElement("tr");tr.innerHTML=`<td>${checkedRows.length}</td><td>${esc(f.path)}</td><td>${f.lba}</td><td>${fmt(f.size)}</td><td>${esc(f.status||"verificando")}</td>`;$("filesChecked").appendChild(tr)}
-function addResult(r){
-  resultRows.push(r);
-  let tr=document.createElement("tr");
-  tr.innerHTML=`<td>${resultRows.length}</td><td><b>${esc(r.path)}</b></td><td><span class="typepill">${esc(r.textType)}</span><br>${esc(r.mode)}<br><span class="hint">${esc(r.note||"")}</span></td><td>${esc(r.confidence||"Média")}</td><td><code>${hx(r.fileOffset)}</code><br>${r.fileOffset}</td><td><code>${hx(r.realOffset)}</code><br>${r.realOffset}</td><td><pre>${esc(r.preview)}</pre></td>`;
-  $("results").appendChild(tr);$("exportResults").disabled=false
-}
+function addResult(r){resultRows.push(r);let tr=document.createElement("tr");tr.innerHTML=`<td>${resultRows.length}</td><td><b>${esc(r.path)}</b></td><td><span class="typepill">${esc(r.textType)}</span><br>${esc(r.mode)}<br><span class="hint">${esc(r.note||"")}</span></td><td>${esc(r.confidence||"Média")}</td><td><code>${hx(r.fileOffset)}</code><br>${r.fileOffset}</td><td><code>${hx(r.realOffset)}</code><br>${r.realOffset}</td><td><pre>${esc(r.preview)}</pre></td>`;$("results").appendChild(tr);$("exportResults").disabled=false}
 function download(name,rows){let blob=new Blob([rows.map(r=>r.map(csv).join(",")).join("\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
-$("exportResults").onclick=()=>download("resultado_tipos_formatos_texto.csv",[["arquivo","tipo_detectado","modo","confianca","observacao","offset_arquivo","offset_real","trecho"],...resultRows.map(r=>[r.path,r.textType,r.mode,r.confidence,r.note,r.fileOffset,r.realOffset,r.preview])]);
+$("exportResults").onclick=()=>download("resultado_tipos_formatos_texto_corrigido.csv",[["arquivo","tipo_detectado","modo","confianca","observacao","offset_arquivo","offset_real","trecho"],...resultRows.map(r=>[r.path,r.textType,r.mode,r.confidence,r.note,r.fileOffset,r.realOffset,r.preview])]);
 
 const drop=$("drop");
 drop.ondragover=e=>{e.preventDefault();drop.classList.add("drag")};
@@ -157,16 +125,13 @@ drop.ondrop=e=>{e.preventDefault();drop.classList.remove("drag");$("file").files
 $("file").onchange=updateInfo;
 function updateInfo(){let f=$("file").files[0];$("fileInfo").innerHTML=f?`<span class="pill">${esc(f.name)} — ${fmt(f.size)}</span>`:"Nenhum arquivo selecionado."}
 
-const allBoxes=["ascii","utf8","latin1","win1252","utf16le","utf16be","utf32le","utf32be","zeroAfter","zeroBefore","nullTerminated","pascal8","pascal16le","reverseBytes","decUtf8","dec1252","decLatin1","decUtf16le","decUtf16be","decSjis","decEucjp","decGbk","decBig5","decEuckr","autoTable","relative","xor","notBits","nibble"];
+const boxes=["ascii","utf8","latin1","win1252","utf16le","utf16be","utf32le","utf32be","zeroAfter","zeroBefore","nullTerminated","pascal8","pascal16le","reverseBytes","autoTable","relative","xor","notBits","nibble"];
 $("preset").onchange=()=>{
   const p=$("preset").value;
-  for(const id of allBoxes) $(id).checked=false;
-  $("ascii").checked=$("utf8").checked=$("latin1").checked=$("win1252").checked=$("utf16le").checked=$("zeroAfter").checked=$("nullTerminated").checked=true;
-  $("decUtf8").checked=$("dec1252").checked=$("decLatin1").checked=$("decUtf16le").checked=$("decSjis").checked=true;
-  if(p==="wide"||p==="deep"||p==="brute"){
-    for(const id of ["utf16be","utf32le","utf32be","zeroBefore","pascal8","pascal16le","reverseBytes","decUtf16be","decEucjp","decGbk","decBig5","decEuckr"]) $(id).checked=true;
-  }
-  if(p==="deep"||p==="brute"){ $("autoTable").checked=true; $("relative").checked=true; $("notBits").checked=true; $("nibble").checked=true; }
+  for(const id of boxes) $(id).checked=false;
+  for(const id of ["ascii","utf8","latin1","win1252","utf16le","zeroAfter","nullTerminated"]) $(id).checked=true;
+  if(p==="wide"||p==="deep"||p==="brute") for(const id of ["utf16be","utf32le","utf32be","zeroBefore","pascal8","pascal16le","reverseBytes"]) $(id).checked=true;
+  if(p==="deep"||p==="brute") for(const id of ["autoTable","relative","notBits","nibble"]) $(id).checked=true;
   if(p==="brute") $("xor").checked=true;
 };
 
@@ -180,172 +145,31 @@ function unique(a){return [...new Set(a.filter(Boolean))]}
 async function readSlice(file,start,len){return new Uint8Array(await file.slice(start,start+len).arrayBuffer())}
 async function readSector(file,lba,layout){return await readSlice(file,lba*layout.sectorSize+layout.dataOffset,2048)}
 async function testLayout(file,layout){try{const s=await readSector(file,16,layout);return s[0]===1&&readAscii(s,1,5)==="CD001"}catch(e){return false}}
-async function detectLayout(file,mode){
- const list=[];
- if(mode==="2048"||mode==="auto")list.push({sectorSize:2048,dataOffset:0,name:"ISO 2048"});
- if(mode==="2352_24"||mode==="auto")list.push({sectorSize:2352,dataOffset:24,name:"BIN 2352 offset 24"});
- if(mode==="2352_16"||mode==="auto")list.push({sectorSize:2352,dataOffset:16,name:"BIN 2352 offset 16"});
- for(const l of list)if(await testLayout(file,l))return l;
- return {sectorSize:2048,dataOffset:0,name:"ISO 2048 não confirmado"};
-}
-async function readPayload(file,lba,size,layout){
- const sectors=Math.ceil(size/2048), out=new Uint8Array(size); let pos=0;
- for(let i=0;i<sectors;i++){const s=await readSector(file,lba+i,layout);out.set(s.slice(0,Math.min(2048,size-pos)),pos);pos+=2048}
- return out;
-}
-async function parseDir(file,layout,path,lba,size,depth,out,seen){
- if(depth>40||stopFlag)return;const key=lba+":"+size;if(seen.has(key))return;seen.add(key);
- const dir=await readPayload(file,lba,size,layout);let p=0;
- while(p<dir.length&&!stopFlag){let len=dir[p];if(len===0){p=(Math.floor(p/2048)+1)*2048;continue}if(len<34||p+len>dir.length)break;
-  let ex=le32(dir,p+2),sz=le32(dir,p+10),fl=dir[p+25],nl=dir[p+32],nm=readAscii(dir,p+33,nl);
-  if(nm!=="\\x00"&&nm!=="\\x01"){nm=nm.replace(/;1$/i,"").replace(/\\.$/,"");let full=path?path+"/"+nm:nm;if(fl&2)await parseDir(file,layout,full,ex,sz,depth+1,out,seen);else out.push({path:full,lba:ex,size:sz,realOffset:ex*layout.sectorSize+layout.dataOffset})}
-  p+=len;
- }
-}
-async function parseIso(file,layout){
- const pvd=await readSector(file,16,layout);if(!(pvd[0]===1&&readAscii(pvd,1,5)==="CD001"))return[];
- const root=156,lba=le32(pvd,root+2),size=le32(pvd,root+10),out=[];await parseDir(file,layout,"",lba,size,0,out,new Set());return out;
-}
+async function detectLayout(file,mode){const list=[];if(mode==="2048"||mode==="auto")list.push({sectorSize:2048,dataOffset:0,name:"ISO 2048"});if(mode==="2352_24"||mode==="auto")list.push({sectorSize:2352,dataOffset:24,name:"BIN 2352 offset 24"});if(mode==="2352_16"||mode==="auto")list.push({sectorSize:2352,dataOffset:16,name:"BIN 2352 offset 16"});for(const l of list)if(await testLayout(file,l))return l;return {sectorSize:2048,dataOffset:0,name:"ISO 2048 não confirmado"}}
+async function readPayload(file,lba,size,layout){const sectors=Math.ceil(size/2048),out=new Uint8Array(size);let pos=0;for(let i=0;i<sectors;i++){const s=await readSector(file,lba+i,layout);out.set(s.slice(0,Math.min(2048,size-pos)),pos);pos+=2048}return out}
+async function parseDir(file,layout,path,lba,size,depth,out,seen){if(depth>40||stopFlag)return;const key=lba+":"+size;if(seen.has(key))return;seen.add(key);const dir=await readPayload(file,lba,size,layout);let p=0;while(p<dir.length&&!stopFlag){let len=dir[p];if(len===0){p=(Math.floor(p/2048)+1)*2048;continue}if(len<34||p+len>dir.length)break;let ex=le32(dir,p+2),sz=le32(dir,p+10),fl=dir[p+25],nl=dir[p+32],nm=readAscii(dir,p+33,nl);if(nm!=="\\x00"&&nm!=="\\x01"){nm=nm.replace(/;1$/i,"").replace(/\\.$/,"");let full=path?path+"/"+nm:nm;if(fl&2)await parseDir(file,layout,full,ex,sz,depth+1,out,seen);else out.push({path:full,lba:ex,size:sz,realOffset:ex*layout.sectorSize+layout.dataOffset})}p+=len}}
+async function parseIso(file,layout){const pvd=await readSector(file,16,layout);if(!(pvd[0]===1&&readAscii(pvd,1,5)==="CD001"))return[];const root=156,lba=le32(pvd,root+2),size=le32(pvd,root+10),out=[];await parseDir(file,layout,"",lba,size,0,out,new Set());return out}
 function b8(s){const a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i)&255;return a}
 function u16(s,be){const a=new Uint8Array(s.length*2);for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);a[i*2]=be?c>>8:c&255;a[i*2+1]=be?c&255:c>>8}return a}
 function u32(s,be){const cps=[...s].map(ch=>ch.codePointAt(0));const a=new Uint8Array(cps.length*4);cps.forEach((c,i)=>{if(be){a[i*4]=(c>>24)&255;a[i*4+1]=(c>>16)&255;a[i*4+2]=(c>>8)&255;a[i*4+3]=c&255}else{a[i*4]=c&255;a[i*4+1]=(c>>8)&255;a[i*4+2]=(c>>16)&255;a[i*4+3]=(c>>24)&255}});return a}
-function zeroAfter(s){if(!s.length)return null;const a=new Uint8Array(s.length*2);for(let i=0;i<s.length;i++){a[i*2]=s.charCodeAt(i)&255;a[i*2+1]=0}return a}
-function zeroBefore(s){if(!s.length)return null;const a=new Uint8Array(s.length*2);for(let i=0;i<s.length;i++){a[i*2]=0;a[i*2+1]=s.charCodeAt(i)&255}return a}
+function zeroAfter(s){const a=new Uint8Array(s.length*2);for(let i=0;i<s.length;i++){a[i*2]=s.charCodeAt(i)&255;a[i*2+1]=0}return a}
+function zeroBefore(s){const a=new Uint8Array(s.length*2);for(let i=0;i<s.length;i++){a[i*2]=0;a[i*2+1]=s.charCodeAt(i)&255}return a}
 function nullTerm(s){const b=b8(s),a=new Uint8Array(b.length+1);a.set(b);a[a.length-1]=0;return a}
 function pas8(s){const b=b8(s);if(b.length>255)return null;const a=new Uint8Array(b.length+1);a[0]=b.length;a.set(b,1);return a}
-function pas16(s){const b=b8(s);const a=new Uint8Array(b.length+2);a[0]=b.length&255;a[1]=(b.length>>8)&255;a.set(b,2);return a}
+function pas16(s){const b=b8(s),a=new Uint8Array(b.length+2);a[0]=b.length&255;a[1]=(b.length>>8)&255;a.set(b,2);return a}
 function vars(q,opt){let a=[q];if(opt.caseInsensitive)a.push(q.toLowerCase(),q.toUpperCase(),q.replace(/\\b\\w/g,m=>m.toUpperCase()));if(opt.noAccent)a.push(...a.map(noacc));if(opt.spaceVariants)a.push(...a.map(s=>s.replaceAll(" ",""),s.replaceAll(" ","_"),s.replaceAll(" ","-"),s.replaceAll(" ",".")));if(opt.reverseBytes)a.push(...a.map(s=>[...s].reverse().join("")));return unique(a)}
 function pat(name,type,bytes,confidence,note){return {name,textType:type,bytes,confidence,note}}
-function buildPatterns(q,opt){
- const pats=[], add=(n,t,b,c,note)=>{if(b&&b.length)pats.push(pat(n,t,b,c,note))};
- for(const v of vars(q,opt)){
-   if(opt.ascii)add("ASCII / 8-bit comum","ASCII / 8-bit comum",b8(v),"Alta","Byte direto. Também cobre muitas tabelas compatíveis com ASCII.");
-   if(opt.utf8)add("UTF-8","UTF-8",new TextEncoder().encode(v),"Alta","Texto UTF-8.");
-   if(opt.latin1)add("Latin-1 byte","ISO-8859-1 / Latin-1",b8(v),"Média/Alta","Para letras inglesas é igual ASCII; acentos dependem do byte.");
-   if(opt.win1252)add("Windows-1252 byte","Windows-1252",b8(v),"Média/Alta","Para letras inglesas é igual ASCII; acentos/símbolos mudam.");
-   if(opt.utf16le)add("UTF-16 LE","UTF-16 Little Endian",u16(v,false),"Alta","2 bytes por caractere, ordem little-endian.");
-   if(opt.utf16be)add("UTF-16 BE","UTF-16 Big Endian",u16(v,true),"Alta","2 bytes por caractere, ordem big-endian.");
-   if(opt.utf32le)add("UTF-32 LE","UTF-32 Little Endian",u32(v,false),"Alta","4 bytes por caractere, ordem little-endian.");
-   if(opt.utf32be)add("UTF-32 BE","UTF-32 Big Endian",u32(v,true),"Alta","4 bytes por caractere, ordem big-endian.");
-   if(opt.zeroAfter)add("Letra + 00","8-bit intercalado com 00 depois",zeroAfter(v),"Média","Padrão A 00 B 00 C 00.");
-   if(opt.zeroBefore)add("00 + letra","8-bit intercalado com 00 antes",zeroBefore(v),"Média","Padrão 00 A 00 B 00 C.");
-   if(opt.nullTerminated)add("String terminada em 00","C string / null-terminated",nullTerm(v),"Alta","Texto seguido por byte 00.");
-   if(opt.pascal8)add("Pascal 8-bit length","Pascal string 8-bit",pas8(v),"Média","Primeiro byte é o tamanho do texto.");
-   if(opt.pascal16le)add("Pascal 16 LE length","Pascal string 16-bit LE",pas16(v),"Média","Primeiros 2 bytes indicam tamanho.");
- }
- if(opt.autoTable){
-   const alph=["ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz","0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ","ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"],spaces=[0,32,45,95,255,null];
-   for(const v of vars(q,opt))for(const a of alph)for(let base=0;base<256;base++)for(const sp of spaces){
-     let out=[],ok=true;
-     for(const ch of v){if(ch===" "){if(sp===null){ok=false;break}else out.push(sp);continue}let idx=a.indexOf(ch);if(idx<0){ok=false;break}out.push((base+idx)&255)}
-     if(ok)add("Tabela sequencial base "+base.toString(16).padStart(2,"0").toUpperCase(),"Tabela própria sequencial",new Uint8Array(out),"Média","Fonte/tabela própria do jogo. Não é UTF-8/ASCII real.");
-   }
- }
- let extra=[];
- if(opt.notBits||opt.nibble||opt.xor){
-   const base=[...pats];
-   for(const p of base){
-     if(opt.notBits){let o=new Uint8Array(p.bytes.length);for(let i=0;i<o.length;i++)o[i]=(~p.bytes[i])&255;extra.push(pat(p.name+" + NOT","NOT sobre "+p.textType,o,"Baixa/Média","Padrão com bits invertidos."))}
-     if(opt.nibble){let o=new Uint8Array(p.bytes.length);for(let i=0;i<o.length;i++)o[i]=((p.bytes[i]&15)<<4)|((p.bytes[i]>>4)&15);extra.push(pat(p.name+" + nibble swap","Nibble swap sobre "+p.textType,o,"Baixa/Média","Nibbles alto/baixo trocados."))}
-     if(opt.xor){for(let k=0;k<256;k++){let o=new Uint8Array(p.bytes.length);for(let i=0;i<o.length;i++)o[i]=p.bytes[i]^k;extra.push(pat(p.name+" + XOR "+k.toString(16).padStart(2,"0").toUpperCase(),"XOR sobre "+p.textType,o,"Baixa/Média","Ofuscação XOR 1 byte ou falso positivo."))}}
-   }
- }
- return pats.concat(extra);
-}
-function decoders(opt){
- const list=[
-  ["decUtf8","utf-8","UTF-8 decode","UTF-8 decodificado"],
-  ["dec1252","windows-1252","Windows-1252 decode","Windows-1252 decodificado"],
-  ["decLatin1","iso-8859-1","ISO-8859-1 decode","ISO-8859-1 decodificado"],
-  ["decUtf16le","utf-16le","UTF-16 LE decode","UTF-16 LE decodificado"],
-  ["decUtf16be","utf-16be","UTF-16 BE decode","UTF-16 BE decodificado"],
-  ["decSjis","shift_jis","Shift-JIS decode","Shift-JIS japonês"],
-  ["decEucjp","euc-jp","EUC-JP decode","EUC-JP japonês"],
-  ["decGbk","gbk","GBK decode","GBK chinês"],
-  ["decBig5","big5","Big5 decode","Big5 chinês tradicional"],
-  ["decEuckr","euc-kr","EUC-KR decode","EUC-KR coreano"]
- ];
- const out=[]; for(const [id,enc,mode,type] of list){if(opt[id])try{new TextDecoder(enc);out.push({enc,mode,type})}catch(e){}}
- return out;
-}
+function buildPatterns(q,opt){const pats=[],add=(n,t,b,c,note)=>{if(b&&b.length)pats.push(pat(n,t,b,c,note))};for(const v of vars(q,opt)){if(opt.ascii)add("ASCII / 8-bit comum","ASCII / 8-bit comum",b8(v),"Alta","Byte direto.");if(opt.utf8)add("UTF-8","UTF-8",new TextEncoder().encode(v),"Alta","Texto UTF-8.");if(opt.latin1)add("Latin-1 byte","ISO-8859-1 / Latin-1",b8(v),"Média/Alta","Para inglês é igual ASCII.");if(opt.win1252)add("Windows-1252 byte","Windows-1252",b8(v),"Média/Alta","Para inglês é igual ASCII.");if(opt.utf16le)add("UTF-16 LE","UTF-16 Little Endian",u16(v,false),"Alta","2 bytes por caractere.");if(opt.utf16be)add("UTF-16 BE","UTF-16 Big Endian",u16(v,true),"Alta","2 bytes big-endian.");if(opt.utf32le)add("UTF-32 LE","UTF-32 Little Endian",u32(v,false),"Alta","4 bytes por caractere.");if(opt.utf32be)add("UTF-32 BE","UTF-32 Big Endian",u32(v,true),"Alta","4 bytes big-endian.");if(opt.zeroAfter)add("Letra + 00","8-bit intercalado com 00 depois",zeroAfter(v),"Média","Padrão A 00 B 00.");if(opt.zeroBefore)add("00 + letra","8-bit intercalado com 00 antes",zeroBefore(v),"Média","Padrão 00 A 00 B.");if(opt.nullTerminated)add("String terminada em 00","C string / null-terminated",nullTerm(v),"Alta","Texto seguido por 00.");if(opt.pascal8)add("Pascal 8-bit length","Pascal string 8-bit",pas8(v),"Média","Primeiro byte é tamanho.");if(opt.pascal16le)add("Pascal 16 LE length","Pascal string 16-bit LE",pas16(v),"Média","2 primeiros bytes são tamanho.");}
+if(opt.autoTable){const alph=["ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz","0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ","ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"],spaces=[0,32,45,95,255,null];for(const v of vars(q,opt))for(const a of alph)for(let base=0;base<256;base++)for(const sp of spaces){let out=[],ok=true;for(const ch of v){if(ch===" "){if(sp===null){ok=false;break}else out.push(sp);continue}let idx=a.indexOf(ch);if(idx<0){ok=false;break}out.push((base+idx)&255)}if(ok)add("Tabela sequencial base "+base.toString(16).padStart(2,"0").toUpperCase(),"Tabela própria sequencial",new Uint8Array(out),"Média","Fonte/tabela própria do jogo.")}}
+let extra=[];if(opt.notBits||opt.nibble||opt.xor){const base=[...pats];for(const p of base){if(opt.notBits){let o=new Uint8Array(p.bytes.length);for(let i=0;i<o.length;i++)o[i]=(~p.bytes[i])&255;extra.push(pat(p.name+" + NOT","NOT sobre "+p.textType,o,"Baixa/Média","Bits invertidos."))}if(opt.nibble){let o=new Uint8Array(p.bytes.length);for(let i=0;i<o.length;i++)o[i]=((p.bytes[i]&15)<<4)|((p.bytes[i]>>4)&15);extra.push(pat(p.name+" + nibble swap","Nibble swap sobre "+p.textType,o,"Baixa/Média","Nibbles trocados."))}if(opt.xor){for(let k=0;k<256;k++){let o=new Uint8Array(p.bytes.length);for(let i=0;i<o.length;i++)o[i]=p.bytes[i]^k;extra.push(pat(p.name+" + XOR "+k.toString(16).padStart(2,"0").toUpperCase(),"XOR sobre "+p.textType,o,"Baixa/Média","Ofuscação XOR 1 byte ou falso positivo."))}}}}return pats.concat(extra)}
 function lps(p){let l=new Int32Array(p.length),len=0,i=1;while(i<p.length){if(p[i]===p[len])l[i++]=++len;else if(len)len=l[len-1];else l[i++]=0}return l}
 function kmp(buf,pat,hit){if(!pat.length)return;let l=lps(pat),i=0,j=0;while(i<buf.length){if(buf[i]===pat[j]){i++;j++;if(j===pat.length){hit(i-j);j=l[j-1]}}else if(j)j=l[j-1];else i++}}
 function preview(b,pos,len){const s=Math.max(0,pos-48),e=Math.min(b.length,pos+len+80),cut=b.slice(s,e);let txt="";try{txt=new TextDecoder("utf-8",{fatal:false}).decode(cut).replace(/[^\\x20-\\x7EÀ-ÿぁ-んァ-ヶ一-龯가-힣]/g,".")}catch(e){}const h=[...cut.slice(0,160)].map(x=>x.toString(16).padStart(2,"0").toUpperCase()).join(" ");return (txt.trim()?txt+"\\n":"")+h}
 function cv(ch){ch=noacc(ch).toUpperCase();if(ch>="A"&&ch<="Z")return ch.charCodeAt(0)-65;if(ch>="0"&&ch<="9")return 26+ch.charCodeAt(0)-48;if(ch===" ")return null;return undefined}
-function relativeScan(entry,buf,q,opt,count,max){
- if(!opt.relative)return count;
- for(const v of vars(q,opt).filter(x=>x.length>=3)){
-   let vals=[];for(const ch of v){let z=cv(ch);if(z===undefined){vals=null;break}vals.push(z)}if(!vals)continue;
-   let first=vals.find(x=>x!==null);if(first===undefined)continue;
-   let dif=vals.map(x=>x===null?null:x-first),len=dif.length,local=0;
-   for(let i=0;i<=buf.length-len;i++){
-     let base=null,ok=true;
-     for(let j=0;j<len;j++){if(dif[j]===null)continue;let x=buf[i+j];if(base===null)base=(x-dif[j])&255;else if(((base+dif[j])&255)!==x){ok=false;break}}
-     if(ok){
-       let tbl=[];for(let n=0;n<26;n++)tbl.push(String.fromCharCode(65+n)+"="+((base+n)&255).toString(16).toUpperCase().padStart(2,"0"));
-       post("result",{result:{path:entry.path,fileOffset:i,realOffset:entry.realOffset+i,mode:"Relative Search",textType:"Tabela própria desconhecida / Relative Search",confidence:"Média",note:"A distância entre letras bateu. Use a tabela provável.",preview:"Tabela provável:\\n"+tbl.join(" ")+"\\n\\n"+preview(buf,i,len)}});
-       if(++count>=max)return count;if(++local>20)break
-     }
-   }
- }
- return count
-}
-async function readEntryChunk(file,layout,entry,start,len){
- const firstSector=Math.floor(start/2048), sectorOffset=start%2048, need=sectorOffset+len, sectors=Math.ceil(need/2048), out=new Uint8Array(need);let pos=0;
- for(let i=0;i<sectors;i++){const sec=await readSector(file,entry.lba+firstSector+i,layout);out.set(sec,pos);pos+=2048}
- return out.slice(sectorOffset,sectorOffset+len)
-}
-async function scanEntry(file,layout,entry,pats,q,opt,count,max){
- const chunk=1024*1024, overlap=16384; let pos=0, tail=new Uint8Array(0), ds=decoders(opt);
- while(pos<entry.size&&!stopFlag&&count<max){
-  let len=Math.min(chunk,entry.size-pos), raw=await readEntryChunk(file,layout,entry,pos,len), buf;
-  if(tail.length){buf=new Uint8Array(tail.length+raw.length);buf.set(tail);buf.set(raw,tail.length)}else buf=raw;
-  const basePos=pos-tail.length;
-  for(const p of pats){if(stopFlag||count>=max)break;kmp(buf,p.bytes,i=>{const fileOff=basePos+i;if(fileOff<0||fileOff>=entry.size||count>=max)return;post("result",{result:{path:entry.path,fileOffset:fileOff,realOffset:entry.realOffset+fileOff,mode:p.name,textType:p.textType,confidence:p.confidence,note:p.note,preview:preview(buf,i,p.bytes.length)}});count++})}
-  for(const d of ds){
-    if(count>=max)break;
-    let text="";try{text=new TextDecoder(d.enc,{fatal:false}).decode(buf)}catch(e){continue}
-    let hay=opt.caseInsensitive?noacc(text).toLowerCase():text;
-    for(const qv0 of vars(q,opt)){
-      const qv=opt.caseInsensitive?noacc(qv0).toLowerCase():qv0;
-      let idx=hay.indexOf(qv);
-      while(idx>=0&&count<max){
-        const approx=Math.floor(idx/Math.max(1,text.length)*buf.length), fileOff=basePos+approx;
-        if(fileOff>=0&&fileOff<entry.size){
-          post("result",{result:{path:entry.path,fileOffset:fileOff,realOffset:entry.realOffset+fileOff,mode:d.mode,textType:d.type,confidence:"Média",note:"Encontrado por decodificação; offset pode ser aproximado.",preview:text.slice(Math.max(0,idx-80),idx+qv0.length+100).replace(/\\u0000/g,"·")}});
-          count++;
-        }
-        idx=hay.indexOf(qv,idx+Math.max(1,qv.length));
-      }
-    }
-  }
-  if(opt.relative && entry.size<=8*1024*1024) count=relativeScan(entry,buf,q,opt,count,max);
-  tail=buf.slice(Math.max(0,buf.length-overlap)); pos+=len;
-  await new Promise(r=>setTimeout(r,0))
- }
- return count
-}
-onmessage=async e=>{
- if(e.data.cmd==="stop"){stopFlag=true;return}
- if(e.data.cmd!=="start")return;
- stopFlag=false;
- const {file,query,opt}=e.data;
- try{
-  post("status",{text:"Detectando disco..."});
-  const layout=await detectLayout(file,opt.discMode);
-  post("status",{text:"Lendo arquivos internos..."});
-  let entries=await parseIso(file,layout);
-  if(!entries.length){post("error",{text:"Não consegui listar arquivos. Tente forçar outro modo de disco."});return}
-  post("summary",{text:layout.name+" detectado. "+entries.length+" arquivo(s) encontrados."});
-  let pats=buildPatterns(query,opt); let count=0, max=opt.maxResults;
-  for(let i=0;i<entries.length&&!stopFlag&&count<max;i++){
-   const en=entries[i]; post("checked",{entry:{...en,status:"verificando"}});
-   post("progress",{pct:i/entries.length*100,text:"Verificando "+en.path+" ("+(i+1)+"/"+entries.length+")"});
-   count=await scanEntry(file,layout,en,pats,query,opt,count,max)
-  }
-  post("done",{text:stopFlag?"Interrompido.":"Finalizado.",count})
- }catch(err){post("error",{text:err.message||String(err)}})
-}
+function relativeScan(entry,buf,q,opt,count,max){if(!opt.relative)return count;for(const v of vars(q,opt).filter(x=>x.length>=3)){let vals=[];for(const ch of v){let z=cv(ch);if(z===undefined){vals=null;break}vals.push(z)}if(!vals)continue;let first=vals.find(x=>x!==null);if(first===undefined)continue;let dif=vals.map(x=>x===null?null:x-first),len=dif.length,local=0;for(let i=0;i<=buf.length-len;i++){let base=null,ok=true;for(let j=0;j<len;j++){if(dif[j]===null)continue;let x=buf[i+j];if(base===null)base=(x-dif[j])&255;else if(((base+dif[j])&255)!==x){ok=false;break}}if(ok){let tbl=[];for(let n=0;n<26;n++)tbl.push(String.fromCharCode(65+n)+"="+((base+n)&255).toString(16).toUpperCase().padStart(2,"0"));post("result",{result:{path:entry.path,fileOffset:i,realOffset:entry.realOffset+i,mode:"Relative Search",textType:"Tabela própria desconhecida / Relative Search",confidence:"Média",note:"A distância entre letras bateu.",preview:"Tabela provável:\\n"+tbl.join(" ")+"\\n\\n"+preview(buf,i,len)}});if(++count>=max)return count;if(++local>20)break}}}return count}
+async function readEntryChunk(file,layout,entry,start,len){const firstSector=Math.floor(start/2048),sectorOffset=start%2048,need=sectorOffset+len,sectors=Math.ceil(need/2048),out=new Uint8Array(need);let pos=0;for(let i=0;i<sectors;i++){const sec=await readSector(file,entry.lba+firstSector+i,layout);out.set(sec,pos);pos+=2048}return out.slice(sectorOffset,sectorOffset+len)}
+async function scanEntry(file,layout,entry,pats,q,opt,count,max){const chunk=1024*1024,overlap=16384;let pos=0,tail=new Uint8Array(0);while(pos<entry.size&&!stopFlag&&count<max){let len=Math.min(chunk,entry.size-pos),raw=await readEntryChunk(file,layout,entry,pos,len),buf;if(tail.length){buf=new Uint8Array(tail.length+raw.length);buf.set(tail);buf.set(raw,tail.length)}else buf=raw;const basePos=pos-tail.length;for(const p of pats){if(stopFlag||count>=max)break;kmp(buf,p.bytes,i=>{const fileOff=basePos+i;if(fileOff<0||fileOff>=entry.size||count>=max)return;post("result",{result:{path:entry.path,fileOffset:fileOff,realOffset:entry.realOffset+fileOff,mode:p.name,textType:p.textType,confidence:p.confidence,note:p.note,preview:preview(buf,i,p.bytes.length)}});count++})}if(opt.relative&&entry.size<=8*1024*1024)count=relativeScan(entry,buf,q,opt,count,max);tail=buf.slice(Math.max(0,buf.length-overlap));pos+=len;post("innerProgress",{path:entry.path,done:pos,total:entry.size});await new Promise(r=>setTimeout(r,0))}return count}
+onmessage=async e=>{if(e.data.cmd==="stop"){stopFlag=true;return}if(e.data.cmd!=="start")return;stopFlag=false;const {file,query,opt}=e.data;try{post("status",{text:"Detectando disco..."});const layout=await detectLayout(file,opt.discMode);post("status",{text:"Lendo arquivos internos..."});let entries=await parseIso(file,layout);if(!entries.length){post("error",{text:"Não consegui listar arquivos. Tente forçar outro modo de disco."});return}post("summary",{text:layout.name+" detectado. "+entries.length+" arquivo(s) encontrados."});let pats=buildPatterns(query,opt);let count=0,max=opt.maxResults;for(let i=0;i<entries.length&&!stopFlag&&count<max;i++){const en=entries[i];post("checked",{entry:{...en,status:"verificando"}});post("progress",{pct:i/entries.length*100,text:"Verificando "+en.path+" ("+(i+1)+"/"+entries.length+")"});count=await scanEntry(file,layout,en,pats,query,opt,count,max)}post("done",{text:stopFlag?"Interrompido.":"Finalizado.",count})}catch(err){post("error",{text:err.message||String(err)})}}
 `;
 
 $("start").onclick=()=>{
@@ -359,13 +183,15 @@ $("start").onclick=()=>{
   $("start").disabled=true;$("stop").disabled=false;
   setStatus("Iniciando...");
   const opt={discMode:$("discMode").value,maxResults:+$("maxResults").value||1000};
-  const ids=["ascii","utf8","latin1","win1252","utf16le","utf16be","utf32le","utf32be","zeroAfter","zeroBefore","nullTerminated","pascal8","pascal16le","reverseBytes","decUtf8","dec1252","decLatin1","decUtf16le","decUtf16be","decSjis","decEucjp","decGbk","decBig5","decEuckr","caseInsensitive","noAccent","spaceVariants","autoTable","relative","xor","notBits","nibble"];
+  const ids=["ascii","utf8","latin1","win1252","utf16le","utf16be","utf32le","utf32be","zeroAfter","zeroBefore","nullTerminated","pascal8","pascal16le","reverseBytes","caseInsensitive","noAccent","spaceVariants","autoTable","relative","xor","notBits","nibble"];
   for(const id of ids) opt[id]=$(id).checked;
+  worker.onerror=(e)=>{setStatus("Erro no Worker: "+e.message,"bad");$("start").disabled=false;$("stop").disabled=true};
   worker.onmessage=e=>{
     const m=e.data;
     if(m.type==="status")setStatus(m.text);
     if(m.type==="summary")$("summary").innerHTML=`<p><b>${esc(m.text)}</b></p>`;
     if(m.type==="progress"){ $("bar").style.width=Math.max(1,m.pct).toFixed(1)+"%"; setStatus(m.text); }
+    if(m.type==="innerProgress"){ setStatus(`Lendo ${m.path}: ${fmt(m.done)} / ${fmt(m.total)}`); }
     if(m.type==="checked")addChecked(m.entry);
     if(m.type==="result")addResult(m.result);
     if(m.type==="done"){ $("bar").style.width="100%"; setStatus(m.text+" Resultado(s): "+m.count,m.count?"ok":"bad"); $("start").disabled=false;$("stop").disabled=true; }
