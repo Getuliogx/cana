@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Busca Texto PS1 PS2 ISO</title>
+<style>
+body{margin:0;background:#0b0f16;color:#e8eef8;font-family:Arial}
+header{padding:20px;background:#111a27;border-bottom:1px solid #28384f}
+main{max-width:1200px;margin:auto;padding:16px}
+.card{background:#121a26;border:1px solid #28384f;border-radius:14px;padding:14px;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:850px){.row{grid-template-columns:1fr}}
+input,textarea,select,button{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #28384f;background:#0e1520;color:#e8eef8;padding:11px;font-size:15px}
+textarea{min-height:85px}button{background:#243650;font-weight:bold;cursor:pointer}button:disabled{opacity:.55}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.chk{display:flex;gap:8px;align-items:center;background:#0e1520;border:1px solid #28384f;padding:8px;border-radius:10px}.chk input{width:auto}
+.drop{border:2px dashed #3d5578;padding:22px;text-align:center;border-radius:14px;background:#0e1520}.drop.drag{border-color:#59d38c}
+.progress{height:14px;background:#0e1520;border:1px solid #28384f;border-radius:999px;overflow:hidden}.bar{height:100%;width:0;background:#59d38c}
+table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #28384f;padding:8px;text-align:left;vertical-align:top;font-size:13px}
+th{background:#0e1520;position:sticky;top:0}pre{white-space:pre-wrap;word-break:break-word;max-height:150px;overflow:auto;background:#0e1520;border:1px solid #28384f;border-radius:8px;padding:8px}
+.pill{display:inline-block;border:1px solid #28384f;border-radius:999px;padding:3px 8px;color:#9fb0c8;font-size:12px;margin:2px}
+.ok{color:#59d38c}.bad{color:#ff6b6b}.warn{color:#ffd166}.hint{color:#9fb0c8}code{background:#0e1520;padding:2px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<header><h1>Busca Universal PS1/PS2 ISO</h1><p class="hint">Lista arquivos internos da ISO e mostra em qual arquivo o texto foi encontrado.</p></header>
+<main>
+<div class="card">
+<div id="drop" class="drop"><b>Arraste ISO/BIN/IMG ou arquivos do jogo aqui</b><br><br><input id="files" type="file" multiple></div>
+<p id="fileInfo" class="hint">Nenhum arquivo selecionado.</p>
+</div>
+
+<div class="card">
+<div class="row">
+<div><label>Texto para pesquisar</label><input id="query" placeholder="Load Game, New Game, Continue, Press Start"></div>
+<div><label>Máximo de resultados</label><input id="maxResults" type="number" value="3000"></div>
+</div><br>
+<div class="row">
+<div><label>Máximo por arquivo interno</label><select id="maxSize"><option value="2097152">2 MB</option><option value="8388608" selected>8 MB</option><option value="33554432">32 MB</option><option value="134217728">128 MB</option><option value="999999999999">Sem limite</option></select></div>
+<div><label>Opções</label><div class="grid">
+<label class="chk"><input id="ci" type="checkbox" checked> Ignorar maiúsculas</label>
+<label class="chk"><input id="acc" type="checkbox" checked> Testar sem acentos</label>
+<label class="chk"><input id="dedupe" type="checkbox" checked> Remover duplicados</label>
+<label class="chk"><input id="whole" type="checkbox"> Varrer ISO inteira também</label>
+</div></div>
+</div>
+</div>
+
+<div class="card"><b>Formatos automáticos</b><div class="grid" id="modes"></div></div>
+
+<div class="card"><b>Avançado</b><div class="grid">
+<label class="chk"><input id="autotbl" type="checkbox" checked> Tabela sequencial automática</label>
+<label class="chk"><input id="relative" type="checkbox" checked> Relative Search</label>
+<label class="chk"><input id="spaces" type="checkbox" checked> Variações de espaço</label>
+<label class="chk"><input id="xor" type="checkbox" checked> XOR 1 byte</label>
+<label class="chk"><input id="not" type="checkbox" checked> NOT bits</label>
+<label class="chk"><input id="nibble" type="checkbox" checked> Troca de nibbles</label>
+<label class="chk"><input id="gzip" type="checkbox" checked> GZIP/ZLIB/Deflate/ZIP</label>
+</div></div>
+
+<div class="card"><b>Tabela própria</b><p class="hint">Formato: A=80, B=81, espaço=FF.</p><textarea id="tbl" placeholder="A=80&#10;B=81&#10;C=82&#10; =FF"></textarea><label class="chk"><input id="usetbl" type="checkbox"> Usar tabela própria</label></div>
+
+<div class="card">
+<div class="row"><button id="start">Pesquisar</button><button id="stop" disabled>Parar</button></div><br>
+<div class="progress"><div id="bar" class="bar"></div></div><p id="status" class="hint">Pronto.</p><div id="summary"></div>
+</div>
+
+<div class="card"><b>Arquivos dentro da ISO</b> <button id="exportFiles" disabled>Exportar CSV</button>
+<div style="overflow:auto;max-height:260px"><table><thead><tr><th>#</th><th>ISO</th><th>Arquivo</th><th>Offset</th><th>Tamanho</th></tr></thead><tbody id="fileList"></tbody></table></div></div>
+
+<div class="card"><b>Resultados</b> <button id="exportResults" disabled>Exportar CSV</button>
+<div style="overflow:auto;max-height:680px"><table><thead><tr><th>#</th><th>ISO/Arquivo</th><th>Arquivo interno</th><th>Offset arquivo</th><th>Offset ISO</th><th>Modo</th><th>Trecho</th></tr></thead><tbody id="results"></tbody></table></div></div>
+
+<div class="card"><p class="warn">Não existe “todos os formatos” literal. Se o jogo usar compressão própria, criptografia com chave, texto desenhado em imagem TIM/STR/SFD ou script proprietário, precisa de extrator específico. Este site tenta o máximo automático no navegador.</p></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);let stop=false,results=[],listed=[];
+const modeList=[["utf8","UTF-8"],["ascii","ASCII"],["latin","Latin/byte"],["u16le","UTF-16 LE"],["u16be","UTF-16 BE"],["u32le","UTF-32 LE"],["u32be","UTF-32 BE"],["zero","00 entre letras"],["dutf8","Decodificar UTF-8"],["d1252","Decodificar Windows-1252"],["dlatin","Decodificar ISO-8859-1"],["dsjis","Decodificar Shift-JIS"],["deucjp","Decodificar EUC-JP"],["dgbk","Decodificar GBK"],["dbig5","Decodificar Big5"],["deuckr","Decodificar EUC-KR"]];
+for(const [id,lab] of modeList){const e=document.createElement("label");e.className="chk";e.innerHTML=`<input id="${id}" type="checkbox" checked> ${lab}`;$("modes").appendChild(e)}
+function esc(s){return String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]))}
+function hx(n,w=8){return "0x"+Math.max(0,n).toString(16).toUpperCase().padStart(w,"0")}
+function size(n){const u=["B","KB","MB","GB"];let i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return n.toFixed(i?2:0)+" "+u[i]}
+function csv(v){return '"'+String(v).replaceAll('"','""')+'"'}
+function st(s,c="hint"){$("status").className=c;$("status").textContent=s}
+function noacc(s){return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ç/g,"c").replace(/Ç/g,"C")}
+function unique(a){return [...new Set(a.filter(Boolean))]}
+function upd(){const fs=[...$("files").files];$("fileInfo").innerHTML=fs.length?fs.map(f=>`<span class="pill">${esc(f.name)} — ${size(f.size)}</span>`).join(" "):"Nenhum arquivo selecionado."}
+$("files").onchange=upd;drop.ondragover=e=>{e.preventDefault();drop.classList.add("drag")};drop.ondragleave=()=>drop.classList.remove("drag");drop.ondrop=e=>{e.preventDefault();drop.classList.remove("drag");$("files").files=e.dataTransfer.files;upd()}
+function readA(b,o,l){return new TextDecoder("ascii",{fatal:false}).decode(b.slice(o,o+l)).replace(/\0.*$/,"")}
+function le32(b,o){return b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24)}
+function parseISO(b,name){const sec=2048,out=[];let pvd=-1;for(let s=16;s<40;s++){let p=s*sec;if(p+6<b.length&&b[p]===1&&readA(b,p+1,5)==="CD001"){pvd=p;break}}if(pvd<0)return out;const root=pvd+156,ext=le32(b,root+2),sz=le32(b,root+10),seen=new Set();function dir(path,ex,ds,depth){if(depth>30||stop)return;let key=ex+":"+ds;if(seen.has(key))return;seen.add(key);let p=ex*sec,end=Math.min(b.length,p+ds);while(p<end){let len=b[p];if(len===0){p=(Math.floor(p/sec)+1)*sec;continue}if(len<34||p+len>b.length)break;let e=le32(b,p+2),s=le32(b,p+10),fl=b[p+25],nl=b[p+32],nm=readA(b,p+33,nl);if(nm!=="\x00"&&nm!=="\x01"){nm=nm.replace(/;1$/i,"").replace(/\.$/,"");let full=path?path+"/"+nm:nm;if(fl&2)dir(full,e,s,depth+1);else out.push({iso:name,path:full,off:e*sec,size:s})}p+=len}}dir("",ext,sz,0);return out}
+function b8(s){const a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i)&255;return a}
+function u16(s,be){const a=new Uint8Array(s.length*2);for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);a[i*2]=be?c>>8:c&255;a[i*2+1]=be?c&255:c>>8}return a}
+function u32(s,be){const cps=[...s].map(c=>c.codePointAt(0)),a=new Uint8Array(cps.length*4);cps.forEach((c,i)=>{if(be){a[i*4]=c>>24;a[i*4+1]=(c>>16)&255;a[i*4+2]=(c>>8)&255;a[i*4+3]=c&255}else{a[i*4]=c&255;a[i*4+1]=(c>>8)&255;a[i*4+2]=(c>>16)&255;a[i*4+3]=(c>>24)&255}});return a}
+function zbetween(s){if(s.length<2)return null;const a=new Uint8Array(s.length*2-1);for(let i=0;i<s.length;i++){a[i*2]=s.charCodeAt(i)&255;if(i<s.length-1)a[i*2+1]=0}return a}
+function vars(q){let a=[q];if($("ci").checked)a.push(q.toLowerCase(),q.toUpperCase(),q.replace(/\b\w/g,m=>m.toUpperCase()));if($("acc").checked)a.push(...a.map(noacc));if($("spaces").checked){let m=[];for(const s of a)m.push(s.replaceAll(" ",""),s.replaceAll(" ","_"),s.replaceAll(" ","-"),s.replaceAll(" ","."));a.push(...m)}return unique(a)}
+function parseTbl(t,q){const map=new Map();for(const line of t.split(/\r?\n/)){let c=line.trim();if(!c||c[0]==="#")continue;let i=c.indexOf("=");if(i<0)continue;let k=c.slice(0,i),hs=c.slice(i+1).replace(/[^0-9a-fA-F]/g,"");if(k&&hs.length>=2&&hs.length%2===0){let ar=[];for(let j=0;j<hs.length;j+=2)ar.push(parseInt(hs.slice(j,j+2),16));map.set(k,ar)}}if(!map.size)return null;let o=[];for(const ch of [...q]){if(!map.has(ch))return null;o.push(...map.get(ch))}return new Uint8Array(o)}
+function basePats(q){let p=[];const add=(n,b)=>{if(b&&b.length)p.push({name:n,bytes:b})};for(const v of vars(q)){if($("utf8").checked)add("UTF-8",new TextEncoder().encode(v));if($("ascii").checked)add("ASCII",b8(v));if($("latin").checked)add("Latin/byte",b8(v));if($("u16le").checked)add("UTF-16 LE",u16(v,0));if($("u16be").checked)add("UTF-16 BE",u16(v,1));if($("u32le").checked)add("UTF-32 LE",u32(v,0));if($("u32be").checked)add("UTF-32 BE",u32(v,1));if($("zero").checked)add("00 entre letras",zbetween(v));if($("usetbl").checked)add("Tabela própria",parseTbl($("tbl").value,v))}return p}
+function seq(q,base,alpha,sp){let o=[];for(const ch of q){if(ch===" "){if(sp===null)return null;o.push(sp);continue}let i=alpha.indexOf(ch);if(i<0)return null;o.push((base+i)&255)}return new Uint8Array(o)}
+function autoPats(q){if(!$("autotbl").checked)return[];let p=[],alph=["ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz","0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ","ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"],spaces=[0,32,127,128,254,255,null];for(const v of vars(q)){for(const a of alph){for(let b=0;b<256;b++){for(const sp of spaces){let by=seq(v,b,a,sp);if(by)p.push({name:`Tabela auto base ${b.toString(16).padStart(2,"0").toUpperCase()}`,bytes:by,extra:`Tabela provável: A=${b.toString(16).padStart(2,"0").toUpperCase()} alfabeto=${a}`})}}}}return p}
+function trans(p,type,k=0){let o=new Uint8Array(p.length);for(let i=0;i<p.length;i++){let b=p[i];if(type==="xor")o[i]=b^k;else if(type==="not")o[i]=(~b)&255;else if(type==="nib")o[i]=((b&15)<<4)|((b>>4)&15)}return o}
+function cryptoPats(base){let o=[];if($("not").checked)for(const p of base)o.push({name:p.name+" + NOT",bytes:trans(p.bytes,"not")});if($("nibble").checked)for(const p of base)o.push({name:p.name+" + nibble",bytes:trans(p.bytes,"nib")});if($("xor").checked)for(const p of base)for(let k=0;k<256;k++)o.push({name:p.name+" + XOR "+k.toString(16).padStart(2,"0").toUpperCase(),bytes:trans(p.bytes,"xor",k)});return o}
+function lps(p){let l=new Int32Array(p.length),len=0,i=1;while(i<p.length){if(p[i]===p[len])l[i++]=++len;else if(len)len=l[len-1];else l[i++]=0}return l}
+function kmp(b,p,hit){if(!p.length)return;let l=lps(p),i=0,j=0;while(i<b.length){if(b[i]===p[j]){i++;j++;if(j===p.length){hit(i-j);j=l[j-1]}}else if(j)j=l[j-1];else i++}}
+function prev(b,pos,len){let s=Math.max(0,pos-48),e=Math.min(b.length,pos+len+80),cut=b.slice(s,e),txt="";for(const enc of ["utf-8","windows-1252","shift_jis"]){try{let t=new TextDecoder(enc,{fatal:false}).decode(cut).replace(/[^\x20-\x7EÀ-ÿぁ-んァ-ヶ一-龯]/g,".");if(t.replace(/\./g,"").trim().length>txt.replace(/\./g,"").trim().length)txt=t}catch(e){}}let h=[...cut.slice(0,150)].map(x=>x.toString(16).padStart(2,"0").toUpperCase()).join(" ");return (txt.trim()?txt+"\n":"")+h+(cut.length>150?" ...":"")}
+function addRes(iso,path,of,oi,mode,pr){let max=+$("maxResults").value||3000;if(results.length>=max)return false;if($("dedupe").checked&&results.some(r=>r.iso===iso&&r.path===path&&r.mode===mode&&Math.abs(r.of-of)<4))return true;let r={iso,path,of,oi,mode,pr};results.push(r);let tr=document.createElement("tr");tr.innerHTML=`<td>${results.length}</td><td>${esc(iso)}</td><td>${esc(path)}</td><td><code>${hx(of)}</code><br>${of}</td><td><code>${oi>=0?hx(oi):"-"}</code><br>${oi>=0?oi:""}</td><td>${esc(mode)}</td><td><pre>${esc(pr)}</pre></td>`;$("results").appendChild(tr);$("exportResults").disabled=false;return results.length<max}
+function getDec(){let m=[["dutf8","utf-8","UTF-8 decode"],["d1252","windows-1252","Windows-1252 decode"],["dlatin","iso-8859-1","Latin1 decode"],["dsjis","shift_jis","Shift-JIS decode"],["deucjp","euc-jp","EUC-JP decode"],["dgbk","gbk","GBK decode"],["dbig5","big5","Big5 decode"],["deuckr","euc-kr","EUC-KR decode"]],o=[];for(const [id,enc,n] of m)if($(id).checked)try{new TextDecoder(enc);o.push({enc,n})}catch(e){}return o}
+function cv(ch){ch=noacc(ch).toUpperCase();if(ch>="A"&&ch<="Z")return ch.charCodeAt(0)-65;if(ch>="0"&&ch<="9")return 26+ch.charCodeAt(0)-48;if(ch===" ")return null;return undefined}
+function rel(iso,path,b,base,q){if(!$("relative").checked)return;for(const v of vars(q).filter(x=>x.length>=3)){let vals=[];for(const ch of v){let z=cv(ch);if(z===undefined){vals=null;break}vals.push(z)}if(!vals)continue;let first=vals.find(x=>x!==null);if(first===undefined)continue;let dif=vals.map(x=>x===null?null:x-first),len=dif.length,c=0;for(let i=0;i<=b.length-len;i++){let bb=null,ok=true;for(let j=0;j<len;j++){if(dif[j]===null)continue;let x=b[i+j];if(bb===null)bb=(x-dif[j])&255;else if(((bb+dif[j])&255)!==x){ok=false;break}}if(ok){let tbl=[];for(let n=0;n<26;n++)tbl.push(String.fromCharCode(65+n)+"="+((bb+n)&255).toString(16).toUpperCase().padStart(2,"0"));addRes(iso,path,i,base>=0?base+i:-1,"Relative Search",`Achou "${v}"\n${tbl.join(" ")}\n\n${prev(b,i,len)}`);if(++c>80)return}}}}
+async function scanBuf(iso,path,b,base,pats,q,extra=""){for(const p of pats){if(stop)return;kmp(b,p.bytes,i=>addRes(iso,path,i,base>=0?base+i:-1,(extra?extra+" / ":"")+p.name,prev(b,i,p.bytes.length)+(p.extra?"\n"+p.extra:"")));if(results.length>=(+$("maxResults").value||3000))return}for(const d of getDec()){let text="";try{text=new TextDecoder(d.enc,{fatal:false}).decode(b)}catch(e){continue}let hay=$("ci").checked?noacc(text).toLowerCase():text;for(const qv0 of vars(q)){let qv=$("ci").checked?noacc(qv0).toLowerCase():qv0,idx=hay.indexOf(qv);while(idx>=0){let ap=Math.floor(idx/Math.max(1,text.length)*b.length),sn=text.slice(Math.max(0,idx-70),idx+qv0.length+100).replace(/\u0000/g,"·");if(!addRes(iso,path,ap,base>=0?base+ap:-1,(extra?extra+" / ":"")+d.n+" offset aprox.",sn))return;idx=hay.indexOf(qv,idx+Math.max(1,qv.length))}}}rel(iso,path,b,base,q)}
+async function decomp(bytes,fmt){let ds=new DecompressionStream(fmt),stream=new Blob([bytes]).stream().pipeThrough(ds);return new Uint8Array(await new Response(stream).arrayBuffer())}
+async function compScan(iso,path,b,base,pats,q){if(!$("gzip").checked||!("DecompressionStream"in window))return;let found=0;for(let i=0;i<b.length-4&&found<40;i++){let type="",fmt="";if(b[i]===0x1F&&b[i+1]===0x8B&&b[i+2]===8){type="gzip";fmt="gzip"}else if(b[i]===0x78&&[1,0x5E,0x9C,0xDA].includes(b[i+1])){type="zlib";fmt="deflate"}else if(b[i]===0x50&&b[i+1]===0x4B&&b[i+2]===3&&b[i+3]===4){type="zip"}else continue;found++;try{if(type==="zip"){let m=b[i+8]|b[i+9]<<8,cs=b[i+18]|b[i+19]<<8|b[i+20]<<16|b[i+21]<<24,nl=b[i+26]|b[i+27]<<8,el=b[i+28]|b[i+29]<<8,doff=i+30+nl+el,nm=new TextDecoder().decode(b.slice(i+30,i+30+nl)),c=b.slice(doff,Math.min(b.length,doff+Math.min(cs,33554432))),out=null;if(m===0)out=c;else if(m===8)out=await decomp(c,"deflate-raw");if(out)await scanBuf(iso,path+" :: ZIP:"+nm,out,-1,pats,q,"descompactado ZIP")}else{let out=await decomp(b.slice(i,Math.min(b.length,i+33554432)),fmt);await scanBuf(iso,path+" :: "+type+" @ "+hx(i),out,-1,pats,q,"descompactado "+type)}}catch(e){}await new Promise(r=>setTimeout(r,0))}}
+function addFile(f){listed.push(f);let tr=document.createElement("tr");tr.innerHTML=`<td>${listed.length}</td><td>${esc(f.iso)}</td><td>${esc(f.path)}</td><td><code>${hx(f.off)}</code><br>${f.off}</td><td>${size(f.size)}</td>`;$("fileList").appendChild(tr);$("exportFiles").disabled=false}
+async function scanFile(file,done,total){st("Carregando "+file.name);let buf=new Uint8Array(await file.arrayBuffer()),entries=parseISO(buf,file.name);if(entries.length){summary.innerHTML+=`<p><b>${esc(file.name)}</b>: ISO detectada, ${entries.length} arquivo(s).</p>`;entries.forEach(addFile)}else{summary.innerHTML+=`<p><b>${esc(file.name)}</b>: não listou como ISO, tratando como arquivo único.</p>`;entries=[{iso:file.name,path:"(arquivo inteiro)",off:0,size:buf.length,whole:true}]}let q=query.value,base=basePats(q),pats=base.concat(autoPats(q)).concat(cryptoPats(base)),max=+$("maxSize").value;let n=0;for(const e of entries){if(stop)break;n++;bar.style.width=Math.min(100,(done+file.size*n/entries.length)/total*100).toFixed(2)+"%";st(`Pesquisando ${file.name} → ${e.path} (${n}/${entries.length})`);if(e.size>max&&!e.whole)continue;let part=buf.slice(e.off,Math.min(buf.length,e.off+e.size));let ext=(e.path.split(".").pop()||"").toUpperCase();if(["TIM","STR","SFD","PSS","ADX","XA"].includes(ext))addRes(file.name,e.path,0,e.off,"Aviso",`Arquivo ${ext} costuma ser imagem/vídeo/áudio. Texto pode estar desenhado e não como texto.`);await scanBuf(file.name,e.path,part,e.off,pats,q);await compScan(file.name,e.path,part,e.off,base.concat(autoPats(q)),q);await new Promise(r=>setTimeout(r,0))}if($("whole").checked&&entries.length>1&&!stop)await scanBuf(file.name,"(ISO inteira)",buf,0,base.concat(cryptoPats(base)),q,"ISO inteira")}
+stop.onclick=()=>{stop=true;st("Parando...")};
+start.onclick=async()=>{let fs=[...files.files];if(!fs.length)return alert("Selecione ISO/arquivos.");if(!query.value.trim())return alert("Digite o texto.");stop=false;results=[];listed=[];results.innerHTML="";fileList.innerHTML="";summary.innerHTML="";exportResults.disabled=true;exportFiles.disabled=true;start.disabled=true;$("stop").disabled=false;bar.style.width="0";let total=fs.reduce((a,f)=>a+f.size,0),done=0;try{for(const f of fs){if(stop)break;await scanFile(f,done,total);done+=f.size}st(stop?"Busca interrompida.":"Busca finalizada.",stop?"bad":"ok");summary.innerHTML+=`<p><b>${results.length}</b> resultado(s). <b>${listed.length}</b> arquivo(s) listados.</p>`}catch(e){console.error(e);st("Erro: "+e.message,"bad")}finally{start.disabled=false;$("stop").disabled=true}};
+function download(name,rows){let blob=new Blob([rows.map(r=>r.map(csv).join(",")).join("\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+exportResults.onclick=()=>download("resultados_busca_ps1_ps2.csv",[["iso","arquivo_interno","offset_arquivo","offset_iso","modo","trecho"],...results.map(r=>[r.iso,r.path,r.of,r.oi,r.mode,r.pr])]);
+exportFiles.onclick=()=>download("arquivos_da_iso.csv",[["iso","arquivo","offset","tamanho"],...listed.map(f=>[f.iso,f.path,f.off,f.size])]);
+upd();
+</script>
+</body>
+</html>
